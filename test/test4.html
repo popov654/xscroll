@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.5, minimum-scale=1.5, maximum-scale=1.5, user-scalable=yes" />
+
+<title>Тест</title>
+
+<style type="text/css">
+
+#container {
+     border: 1px solid #ccc;
+     position: absolute;
+     left: 20%;
+     right: 20%;
+     top: 18px;
+     bottom: 18px;
+     font-family: Tahoma;
+     font-size: 12px;
+     padding: 0px;
+}
+#container > div:first-child > div {
+     font-family: Tahoma;
+     font-size: 12px;
+     margin: 2px;
+     padding: 2px;
+}
+#container > div:first-child > div:nth-child(2n) {
+     background: #aaa;
+}
+#container .xscroll_thumb_vert {
+     background: rgba(180, 180, 180, 0.5);
+     position: absolute;
+     top: 2px;
+     right: 2px;
+     width: 3px;
+     height: 80px;
+}
+
+</style>
+
+<script type="text/javascript" src="xscroll.js"></script>
+<script type="text/javascript">
+
+function init() {
+   for (var i = 1; i <= 300; i++) {
+      document.getElementById('container').innerHTML += '<div><span onclick="alert(' + i + ')">' + i + '</span></div>'
+   }
+   XScroll.initAll()
+}
+
+</script>
+</head>
+<body onload="init()">
+<div id="container" scroll-size="7" button-size="2" thumb-width="3" thumb-length="auto" scroll-delta="20" class="scrollable scroll_y"></div>
+</body>
+</html>

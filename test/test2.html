@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+<title>Тест</title>
+
+<style type="text/css">
+.xscroll_btn_up {
+   background: url('image/scroll_up_black.png') center center no-repeat;
+   cursor: pointer;
+}
+.xscroll_btn_down {
+   background: url('image/scroll_down_black.png') center center no-repeat;
+   cursor: pointer;
+}
+.xscroll_track_vert {
+   background: #312E36;
+}
+.xscroll_thumb_horz, .xscroll_thumb_vert {
+   background: url('image/scroll_thumb_black.png') center center no-repeat;
+   cursor: pointer;
+}
+::selection {
+   background: #999;
+   color: #222;
+}
+</style>
+
+<script type="text/javascript" src="xscroll.js"></script>
+<script type="text/javascript">
+function init() {
+   XScroll.initAll()
+}
+</script>
+</head>
+<body style="background: #2e2f35" onload="init()">
+<div class="scrollable scroll_y" scroll-size="21" button-size="21" thumb-length="28" scroll-delta="20" style="background: #26242B; color: #fff; padding: 5px 10px 5px 6px; width: 300px" viewport-height="200">
+Выбирайте человека так, словно вы слепы. Закройте глаза и почувствуйте, что вы думаете об этом человеке. О его доброте, верности, проницательности, преданности, о его способности позаботиться о вас и позаботиться о себе самом, как о независимом существе. Хотя особенности нашей культуры влияют на многое, и то, что мы видим нашим внешним взглядом, очень важно, гораздо важнее то, что мы видим и воспринимаем нашим внутренним взором, когда наши глаза закрыты.
+</div>
+</body>
+</html>

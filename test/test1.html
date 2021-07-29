@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+<title>Тест</title>
+
+<style type="text/css">
+.xscroll_btn_left {
+   background: url('image/btn_left.gif') center center no-repeat;
+}
+.xscroll_btn_right {
+   background: url('image/btn_right.gif') center center no-repeat;
+}
+.xscroll_btn_up {
+   background: url('image/btn_up.gif') center center no-repeat;
+}
+.xscroll_btn_down {
+   background: url('image/btn_down.gif') center center no-repeat;
+}
+.xscroll_thumb_horz, .xscroll_thumb_vert {
+   background: #bababa;
+   border-radius: 4px;
+}
+.xscroll_thumb_horz:hover, .xscroll_thumb_vert:hover {
+   background: #ccc;
+}
+.xscroll_btn_left:hover, .xscroll_btn_right:hover,
+.xscroll_btn_up:hover, .xscroll_btn_down:hover {
+   opacity: 0.8;
+}
+</style>
+
+<script type="text/javascript" src="xscroll.js"></script>
+<script type="text/javascript">
+function init() {
+   XScroll.initAll()
+}
+</script>
+</head>
+<body onload="init()">
+<div class="scrollable scroll_y" button-size="14" scroll-delta="20" style="padding: 5px 10px 5px 6px; width: 300px" viewport-height="200" thumb-width="8">
+Выбирайте человека так, словно вы слепы. Закройте глаза и почувствуйте, что вы думаете об этом человеке. О его доброте, верности, проницательности, преданности, о его способности позаботиться о вас и позаботиться о себе самом, как о независимом существе. Хотя особенности нашей культуры влияют на многое, и то, что мы видим нашим внешним взглядом, очень важно, гораздо важнее то, что мы видим и воспринимаем нашим внутренним взором, когда наши глаза закрыты.
+</div>
+</body>
+</html>
