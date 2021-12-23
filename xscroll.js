@@ -244,6 +244,7 @@ XScroll.updateThumbSize = function(obj) {
       button_size = parseInt(obj.getAttribute('button-size'))
    }
    var thumb_size = 80
+   if (XScroll.hasXScroll(obj) && obj.clientWidth == 0 || XScroll.hasYScroll(obj) && obj.clientHeight == 0) return
    if (!obj.getAttribute('thumb-length')) {
       if (XScroll.hasXScroll(obj)) {
          thumb_size = Math.max(Math.round((obj.clientWidth - button_size * 2) *
@@ -352,7 +353,7 @@ XScroll.init = function(el, force) {
          while (el2 != document && w == 'auto') {
             var st2 = el2.currentStyle ? el2.currentStyle : getComputedStyle(el2, '')
             w = st2.width
-            if (w == 'auto' && st2.position == 'absolute' && st2.left != 'auto' && st2.right != 'auto') {
+            if (w == 'auto' && st2.position == 'absolute' && st2.left != 'auto' && st2.right != 'auto' || el2.clientWidth > 0) {
                w = el2.clientWidth
             }
             el2 = el2.parentNode
