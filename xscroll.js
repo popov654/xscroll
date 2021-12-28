@@ -85,10 +85,14 @@ XScroll.scrollBottom = function(obj) {
 XScroll.scrollToX = function(obj, value) {
    var width = obj.firstElementChild.tagName.toLowerCase() != 'textarea' ?
                obj.firstElementChild.clientWidth : obj.firstElementChild.scrollWidth
-   if (width <= obj.clientWidth) return
+   if (width <= obj.clientWidth) {
+      var x = XScroll.getXPosition(obj)
+      if (x <= width - obj.clientWidth) return
+   }
+   var limit = Math.max(0, width - obj.clientWidth)
    if (value < 0) value = 0
-   if (value > width - obj.clientWidth) {
-      value = width - obj.clientWidth
+   if (value > limit) {
+      value = limit
    }
    if (obj.firstElementChild.tagName.toLowerCase() != 'textarea') {
       obj.firstElementChild.style.left = -value + 'px'
@@ -96,6 +100,7 @@ XScroll.scrollToX = function(obj, value) {
       obj.firstElementChild.scrollLeft = value
    }
    this.private.setXThumb(obj, value / (width - obj.clientWidth))
+   if (width <= obj.clientWidth) this.private.updateXState(obj)
    XScroll.fireEvent(obj, 'scroll')
    XScroll.fireEvent(obj, 'scrollend')
 }
@@ -103,10 +108,14 @@ XScroll.scrollToX = function(obj, value) {
 XScroll.scrollToY = function(obj, value) {
    var height = obj.firstElementChild.tagName.toLowerCase() != 'textarea' ?
                 obj.firstElementChild.clientHeight : obj.firstElementChild.scrollHeight
-   if (height <= obj.clientHeight) return
+   if (height <= obj.clientHeight) {
+      var y = XScroll.getYPosition(obj)
+      if (y <= height - obj.clientHeight) return
+   }
+   var limit = Math.max(0, height - obj.clientHeight)
    if (value < 0) value = 0
-   if (value > height - obj.clientHeight) {
-      value = height - obj.clientHeight
+   if (value > limit) {
+      value = limit
    }
    if (obj.firstElementChild.tagName.toLowerCase() != 'textarea') {
       obj.firstElementChild.style.top = -value + 'px'
@@ -114,6 +123,7 @@ XScroll.scrollToY = function(obj, value) {
       obj.firstElementChild.scrollTop = value
    }
    this.private.setYThumb(obj, value / (height - obj.clientHeight))
+   if (height <= obj.clientHeight) this.private.updateYState(obj)
    XScroll.fireEvent(obj, 'scroll')
    XScroll.fireEvent(obj, 'scrollend')
 }
