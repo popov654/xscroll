@@ -161,17 +161,18 @@ XScroll.scrollDown = function(obj, delta) {
 }
 
 XScroll.getScrollWidth = function(obj) {
-   return obj.firstElementChild.tagName.toLowerCase() != 'textarea' ? obj.firstElementChild.clientWidth - obj.clientWidth : obj.firstElementChild.scrollWidth
+   return obj.firstElementChild.tagName.toLowerCase() != 'textarea' ? obj.firstElementChild.clientWidth : obj.firstElementChild.scrollWidth
 }
 
 XScroll.getScrollHeight = function(obj) {
-   return obj.firstElementChild.tagName.toLowerCase() != 'textarea' ? obj.firstElementChild.clientHeight - obj.clientHeight : obj.firstElementChild.scrollHeight
+   return obj.firstElementChild.tagName.toLowerCase() != 'textarea' ? obj.firstElementChild.clientHeight : obj.firstElementChild.scrollHeight
 }
 
 XScroll.updateThumbPosition = function(obj) {
    if (XScroll.hasXScroll(obj)) {
       this.private.updateThumbXPosition(obj)
-   } else {
+   }
+   if (XScroll.hasYScroll(obj)) {
       this.private.updateThumbYPosition(obj)
    }
 }
@@ -183,6 +184,7 @@ XScroll.private.updateThumbXPosition = function(obj) {
    var width = obj.firstElementChild.tagName.toLowerCase() != 'textarea' ?
                 obj.firstElementChild.clientWidth - obj.clientWidth : obj.firstElementChild.scrollWidth - obj.clientWidth
 
+   if (width <= 0) width = 0
    this.setXThumb(obj, x / width)
    this.updateXState(obj, width > 0)
 }
@@ -194,6 +196,7 @@ XScroll.private.updateThumbYPosition = function(obj) {
    var height = obj.firstElementChild.tagName.toLowerCase() != 'textarea' ?
                 obj.firstElementChild.clientHeight - obj.clientHeight : obj.firstElementChild.scrollHeight - obj.clientHeight
 
+   if (height <= 0) height = 0
    this.setYThumb(obj, y / height)
    this.updateYState(obj, height > 0)
 }
@@ -233,22 +236,27 @@ XScroll.private.setYThumb = function(obj, ratio) {
 }
 
 XScroll.private.updateXState = function(obj, enable) {
-   obj.children[0].style.bottom = (enable ? obj.children[2].clientHeight : 0) + 'px'
+   if (obj.children[0].tagName.toLowerCase() == 'textarea') {
+      obj.children[0].style.bottom = (enable ? obj.children[2].clientHeight : 0) + 'px'
+   }
    obj.children[1].style.display = enable ? '' : 'none'
    obj.children[2].style.display = enable ? '' : 'none'
    obj.children[3].style.display = enable ? '' : 'none'
-   XScroll.updateThumbSize(obj)
+   XScroll.updateThumbSize(obj, 'x')
 }
 
 XScroll.private.updateYState = function(obj, enable) {
-   obj.children[0].style.right = (enable ? obj.children[2].clientWidth : 0) + 'px'
-   obj.children[1].style.display = enable ? '' : 'none'
-   obj.children[2].style.display = enable ? '' : 'none'
-   obj.children[3].style.display = enable ? '' : 'none'
-   XScroll.updateThumbSize(obj)
+   var i = XScroll.hasXScroll(obj) ? 3 : 0
+   if (!XScroll.isXScrollActive(obj) || obj.children[0].tagName.toLowerCase() == 'textarea') {
+      obj.children[0].style.right = (enable ? obj.children[i+2].clientWidth : 0) + 'px'
+   }
+   obj.children[i+1].style.display = enable ? '' : 'none'
+   obj.children[i+2].style.display = enable ? '' : 'none'
+   obj.children[i+3].style.display = enable ? '' : 'none'
+   XScroll.updateThumbSize(obj, 'y')
 }
 
-XScroll.updateThumbSize = function(obj) {
+XScroll.updateThumbSize = function(obj, axis) {
    var button_size = 10
    if (obj.getAttribute('button-size')) {
       button_size = parseInt(obj.getAttribute('button-size'))
@@ -256,7 +264,7 @@ XScroll.updateThumbSize = function(obj) {
    var thumb_size = 80
    if (XScroll.hasXScroll(obj) && obj.clientWidth == 0 || XScroll.hasYScroll(obj) && obj.clientHeight == 0) return
    if (!obj.getAttribute('thumb-length')) {
-      if (XScroll.hasXScroll(obj)) {
+      if (axis == 'x') {
          thumb_size = Math.max(Math.round((obj.clientWidth - button_size * 2) *
                                Math.min(1, (obj.clientWidth / obj.children[0].clientWidth))), thumb_size)
       } else {
@@ -266,10 +274,12 @@ XScroll.updateThumbSize = function(obj) {
    } else {
       thumb_size = parseInt(obj.getAttribute('thumb-length'))
    }
-   if (XScroll.hasXScroll(obj)) {
-      obj.children[2].children[0].style.width = thumb_size + 'px'
+   var thumb = axis == 'x' ? getElementsByClass('xscroll_thumb_horz', obj, 'div')[0] : 
+                             getElementsByClass('xscroll_thumb_vert', obj, 'div')[0]
+   if (axis == 'x') {
+      thumb.style.width = thumb_size + 'px'
    } else {
-      obj.children[2].children[0].style.height = thumb_size + 'px'
+      thumb.style.height = thumb_size + 'px'
    }
 }
 
@@ -292,12 +302,195 @@ XScroll.private.stopScroll = function() {
    XScroll.cont = false
 }
 
+XScroll.private.createScroll = function(el, options, c, axis) {
+   if (!XScroll.hasXScroll(el) && axis == 'x' ||
+       !XScroll.hasYScroll(el) && axis == 'y' ||
+       axis != 'x' && axis != 'y') return
+   var tag = options.tag,
+       size = options.size
+   var button1 = document.createElement('div')
+   var track = document.createElement('div')
+   var thumb = document.createElement('div')
+   var button2 = document.createElement('div')
+   var button_size = 10
+   if (el.getAttribute('button-size')) {
+      button_size = parseInt(el.getAttribute('button-size'))
+   }
+   if (XScroll.hasXScroll(el)) {
+      thumb.style.height = size + 'px'
+   } else {
+      thumb.style.width = size + 'px'
+   }
+   if (axis == 'x') {
+      button1.style.width = button_size + 'px'
+      button1.style.height = size + 'px'
+      track.style.height = size + 'px'
+      //track.style.width = el.clientWidth - button_size * 2 + 'px'
+      button2.style.width = button_size + 'px'
+      button2.style.height = size + 'px'
+
+      button1.style.position = 'absolute'
+      button1.style.left = '0px'
+      button1.style.bottom = '0px'
+      track.style.position = 'absolute'
+      track.style.left = button_size + 'px'
+      track.style.right = button_size + 'px'
+      track.style.bottom = '0px'
+      thumb.style.position = 'absolute'
+      thumb.style.left = '0px'
+      thumb.style.top = '0px'
+      button2.style.position = 'absolute'
+      button2.style.right = '0px'
+      button2.style.bottom = '0px'
+
+      button1.className = 'xscroll_btn_left'
+      button2.className = 'xscroll_btn_right'
+      track.className = 'xscroll_track_horz'
+      thumb.className = 'xscroll_thumb_horz'
+   } else {
+      button1.style.height = button_size + 'px'
+      button1.style.width = size + 'px'
+      track.style.width = size + 'px'
+      //track.style.height = el.clientHeight - button_size * 2 + 'px'
+      button2.style.height = button_size + 'px'
+      button2.style.width = size + 'px'
+
+      button1.style.position = 'absolute'
+      button1.style.top = '0px'
+      button1.style.right = '0px'
+      track.style.position = 'absolute'
+      track.style.top = button_size + 'px'
+      track.style.bottom = button_size + 'px'
+      track.style.right = '0px'
+      thumb.style.position = 'absolute'
+      thumb.style.left = '0px'
+      thumb.style.top = '0px'
+      button2.style.position = 'absolute'
+      button2.style.bottom = '0px'
+      button2.style.right = '0px'
+
+      button1.className = 'xscroll_btn_up'
+      button2.className = 'xscroll_btn_down'
+      track.className = 'xscroll_track_vert'
+      thumb.className = 'xscroll_thumb_vert'
+   }
+   if (el.getAttribute('thumb-width')) {
+      var w = parseInt(el.getAttribute('thumb-width'))
+      if (axis == 'x') {
+         thumb.style.height = w + 'px'
+         thumb.style.top = Math.round((size-w)/2) + 'px'
+      } else {
+         thumb.style.width = w + 'px'
+         thumb.style.left = Math.round((size-w)/2) + 'px'
+      }
+   } else {
+      if (axis == 'x') {
+         thumb.style.height = '100%'
+      } else {
+         thumb.style.width = '100%'
+      }
+   }
+   var x = XScroll.hasXScroll(el)
+   var y = XScroll.hasYScroll(el)
+   if (tag == 'textarea') {
+      if (axis == 'x' && el.firstChild.scrollWidth <= parseInt(el.style.width) ||
+          axis == 'y' && el.firstChild.scrollHeight <= parseInt(el.style.height)) {
+         button1.style.display = 'none'
+         track.style.display = 'none'
+         button2.style.display = 'none'
+         if (x) {
+            el.firstChild.style.bottom = '0px'
+            el.firstChild.style.height = parseInt(el.style.height) + 'px'
+         }
+         if (y) {
+            el.firstChild.style.right = '0px'
+            el.firstChild.style.width = parseInt(el.style.width) + 'px'
+         }
+      }
+   }
+   el.appendChild(button1)
+   el.appendChild(track)
+   el.appendChild(button2)
+   track.appendChild(thumb)
+   XScroll.updateThumbSize(el, axis)
+}
+
+XScroll.private.checkOverflow = function(el, c, st) {
+   
+   el.force_scroll_x = false, el.force_scroll_y = false
+   
+   var vis = el.style.visibility
+   el.style.visibility = 'hidden'
+   
+   setTimeout(function() {
+      el.style.overflowX = 'auto'
+      if (el.className.indexOf('scroll_x') == -1) setTimeout(function() {
+
+         var pad_l = (st['paddingLeft']) ? parseInt(st['paddingLeft']) : parseInt(st['padding-left'])
+         var pad_r = (st['paddingRight']) ? parseInt(st['paddingRight']) : parseInt(st['padding-right'])
+
+         var b_l = (st['borderLeftWidth']) ? parseInt(st['borderLeftWidth']) : parseInt(st['border-left-width'])
+         var b_r = (st['borderRightWidth']) ? parseInt(st['borderRightWidth']) : parseInt(st['border-right-width'])
+         
+         var d = 0
+         if (st['boxSizing'] != 'borderBox') {
+            d += b_l + b_r
+         }
+         if (st['boxSizing'] != 'borderBox' && st['boxSizing'] != 'paddingBox') {
+            d += pad_l + pad_r
+         }
+         
+         if (el.scrollWidth > el.getAttribute('viewport-width')) {
+            el.className += ' scroll_x'
+            c.style.width = el.scrollWidth - d + 'px'
+            el.force_scroll_x = true
+         }
+         el.style.overflowX = 'hidden'
+      }, 50)
+
+      el.style.overflowY = 'auto'
+      if (el.className.indexOf('scroll_y') == -1) setTimeout(function() {
+         
+         var pad_t = (st['paddingTop']) ? parseInt(st['paddingTop']) : parseInt(st['padding-top'])
+         var pad_b = (st['paddingBottom']) ? parseInt(st['paddingBottom']) : parseInt(st['padding-bottom'])
+
+         var b_t = (st['borderTopWidth']) ? parseInt(st['borderTopWidth']) : parseInt(st['border-top-width'])
+         var b_b = (st['borderBottomWidth']) ? parseInt(st['borderBottomWidth']) : parseInt(st['border-bottom-width'])
+         
+         var d = 0
+         if (st['boxSizing'] != 'borderBox') {
+            d += pad_t + pad_b
+         }
+         if (st['boxSizing'] != 'borderBox' && st['boxSizing'] != 'paddingBox') {
+            d += b_t + b_b
+         }
+         
+         if (el.scrollHeight > el.getAttribute('viewport-height')) {
+            el.className += ' scroll_y'
+            c.style.height = el.scrollHeight - d + 'px'
+            el.force_scroll_y = true
+         }
+         el.style.overflowY = 'hidden'
+      }, 50)
+   }, 50)
+   
+   setTimeout(function() { el.style.overflow = 'hidden'; el.style.visibility = vis }, 120)
+}
+
 XScroll.hasXScroll = function(el) {
-   return el.className.match(/(^|\s)scroll_x(\s|$)/)
+   return !!el.className.match(/(^|\s)scroll_x(\s|$)/)
 }
 
 XScroll.hasYScroll = function(el) {
-   return el.className.match(/(^|\s)scroll_y(\s|$)/)
+   return !!el.className.match(/(^|\s)scroll_y(\s|$)/)
+}
+
+XScroll.isXScrollActive = function(el) {
+   return el.scrollWidth > el.clientWidth
+}
+
+XScroll.isYScrollActive = function(el) {
+   return el.scrollHeight > el.clientHeight
 }
 
 XScroll.timer = null
@@ -313,6 +506,15 @@ XScroll.init = function(el, force) {
    var tag = el.tagName.toLowerCase()
    if (tag != 'textarea') tag = 'div'
    var c = document.createElement(tag)
+   
+   var st = el.currentStyle || getComputedStyle(el, '')
+   
+   if (el.force_scroll_x === undefined) {
+      XScroll.private.checkOverflow(el, c, st)
+      setTimeout(function() { XScroll.init(el, force) }, 130)
+      return
+   }
+   
    if (tag != 'textarea') {
       var len = el.childNodes.length
       for (var i = 0; i < len; i++) {
@@ -321,15 +523,14 @@ XScroll.init = function(el, force) {
    }
    else c.value = el.value
 
-   var st = el.currentStyle || getComputedStyle(el, '')
-
    var size = 10
    if (el.getAttribute('scroll-size')) {
       size = Math.max(parseInt(el.getAttribute('scroll-size')), 2)
    }
-   if (XScroll.hasXScroll(el)) {
+   if (XScroll.hasXScroll(el) && !el.force_scroll_x) {
       c.style.width = 'auto'
-   } else {
+   }
+   if (XScroll.hasYScroll(el)) {
       c.style.height = 'auto'
    }
    if (el.getAttribute('viewport-height')) {
@@ -352,10 +553,13 @@ XScroll.init = function(el, force) {
    } else {
       el.style.height = st.height
    }
+   
    if (el.getAttribute('viewport-width')) {
       if (parseInt(el.style.width) < el.getAttribute('viewport-width') && tag != 'textarea' && !force) return
+      if (parseInt(el.style.width) > el.getAttribute('viewport-width') && el.className.indexOf('scroll_x') == -1) el.className += ' scroll_x'
       el.style.width = parseInt(el.getAttribute('viewport-width')) + 'px'
-   } else if (!(st.left.match(/^\d+%$/) && st.right.match(/^\d+%$/)) && !st.width.match(/^\d+%$/)){
+      c.style.width = 'auto'
+   } else if (!el.force_scroll_x && !(st.left.match(/^\d+%$/) && st.right.match(/^\d+%$/)) && !st.width.match(/^\d+%$/)){
       var w = 0
       if (st.width == 'auto') {
          var el2 = el
@@ -441,6 +645,7 @@ XScroll.init = function(el, force) {
       from.style.fontWeight = st['fontWeight'] || st['font-weight']
       from.style.fontStyle = st['fontStyle'] || st['font-style']
       from.style.lineHeight = st['lineHeight'] || st['line-height']
+      to.style.whiteSpace = st['whiteSpace'] || st['white-space']
 
       if (st.margin != '') {
          to.style.margin = st.margin
@@ -500,122 +705,41 @@ XScroll.init = function(el, force) {
    if (!el.style.width.match(/%$/)) el.style.width = parseInt(el.style.width) - parseInt(st['borderLeftWidth']) - parseInt(st['borderRightWidth']) + 'px'
    if (!el.style.height.match(/%$/)) el.style.height = parseInt(el.style.height) - parseInt(st['borderTopWidth']) - parseInt(st['borderBottomWidth']) + 'px'
 
-   if (XScroll.hasXScroll(el)) {
+   if (XScroll.hasXScroll(el) && tag == 'textarea') {
       c.style.bottom = size + 'px'
-   } else {
+   }
+   if (XScroll.hasYScroll(el) && tag == 'textarea') {
       c.style.right = size + 'px'
    }
    if (tag == 'textarea') {
       if (XScroll.hasXScroll(el)) {
          c.style.height = parseInt(el.style.height) - size + 'px'
          c.style.width = parseInt(el.style.width) + 'px'
-      } else {
-         c.style.height = parseInt(el.style.height) + 'px'
+      }
+      if (XScroll.hasYScroll(el)) {
          c.style.width = parseInt(el.style.width) - size + 'px'
       }
    }
    c.style.left = '0px'
    c.style.top = '0px'
    el.appendChild(c)
-   var button1 = document.createElement('div')
-   var track = document.createElement('div')
-   var thumb = document.createElement('div')
-   var button2 = document.createElement('div')
-   var button_size = 10
-   if (el.getAttribute('button-size')) {
-      button_size = parseInt(el.getAttribute('button-size'))
+   
+   if (c.style.whiteSpace == 'nowrap' && !XScroll.hasXScroll(el)) {
+      el.className += ' scroll_x'
    }
-   if (XScroll.hasXScroll(el)) {
-      thumb.style.height = size + 'px'
-   } else {
-      thumb.style.width = size + 'px'
-   }
-   if (XScroll.hasXScroll(el)) {
-      button1.style.width = button_size + 'px'
-      button1.style.height = size + 'px'
-      track.style.height = size + 'px'
-      //track.style.width = el.clientWidth - button_size * 2 + 'px'
-      button2.style.width = button_size + 'px'
-      button2.style.height = size + 'px'
-
-      button1.style.position = 'absolute'
-      button1.style.left = '0px'
-      button1.style.bottom = '0px'
-      track.style.position = 'absolute'
-      track.style.left = button_size + 'px'
-      track.style.right = button_size + 'px'
-      track.style.bottom = '0px'
-      thumb.style.position = 'absolute'
-      thumb.style.left = '0px'
-      thumb.style.top = '0px'
-      button2.style.position = 'absolute'
-      button2.style.right = '0px'
-      button2.style.bottom = '0px'
-
-      button1.className = 'xscroll_btn_left'
-      button2.className = 'xscroll_btn_right'
-      track.className = 'xscroll_track_horz'
-      thumb.className = 'xscroll_thumb_horz'
-   } else {
-      button1.style.height = button_size + 'px'
-      button1.style.width = size + 'px'
-      track.style.width = size + 'px'
-      //track.style.height = el.clientHeight - button_size * 2 + 'px'
-      button2.style.height = button_size + 'px'
-      button2.style.width = size + 'px'
-
-      button1.style.position = 'absolute'
-      button1.style.top = '0px'
-      button1.style.right = '0px'
-      track.style.position = 'absolute'
-      track.style.top = button_size + 'px'
-      track.style.bottom = button_size + 'px'
-      track.style.right = '0px'
-      thumb.style.position = 'absolute'
-      thumb.style.left = '0px'
-      thumb.style.top = '0px'
-      button2.style.position = 'absolute'
-      button2.style.bottom = '0px'
-      button2.style.right = '0px'
-
-      button1.className = 'xscroll_btn_up'
-      button2.className = 'xscroll_btn_down'
-      track.className = 'xscroll_track_vert'
-      thumb.className = 'xscroll_thumb_vert'
-   }
-   if (el.getAttribute('thumb-width')) {
-      var w = parseInt(el.getAttribute('thumb-width'))
-      if (XScroll.hasXScroll(el)) {
-         thumb.style.height = w + 'px'
-         thumb.style.top = Math.round((size-w)/2) + 'px'
-      } else {
-         thumb.style.width = w + 'px'
-         thumb.style.left = Math.round((size-w)/2) + 'px'
-      }
-   }
-   var x = XScroll.hasXScroll(el)
-   var y = XScroll.hasYScroll(el)
-   if (tag == 'textarea') {
-      if (x && el.firstChild.scrollWidth <= parseInt(el.style.width) ||
-          y && el.firstChild.scrollHeight <= parseInt(el.style.height)) {
-         button1.style.display = 'none'
-         track.style.display = 'none'
-         button2.style.display = 'none'
-         if (x) {
-            el.firstChild.style.bottom = '0px'
-            el.firstChild.style.height = parseInt(el.style.height) + 'px'
-         }
-         if (y) {
-            el.firstChild.style.right = '0px'
-            el.firstChild.style.width = parseInt(el.style.width) + 'px'
-         }
-      }
-   }
-   el.appendChild(button1)
-   el.appendChild(track)
-   el.appendChild(button2)
-   track.appendChild(thumb)
-   XScroll.updateThumbSize(el)
+   
+   var opts = { tag: tag, size: size }
+   XScroll.private.createScroll(el, opts, c, 'x')
+   XScroll.private.createScroll(el, opts, c, 'y')
+   
+   var sx = XScroll.hasXScroll(el), sy = XScroll.hasYScroll(el)
+   
+   var thumb_x = sx && el.children[2].children[0]
+   var thumb_y = sy && (sx ? el.children[5].children[0] : el.children[2].children[0])
+   var track_x = thumb_x && thumb_x.parentNode, track_y = thumb_y && thumb_y.parentNode
+   
+   var btn1_x = sx && el.children[1], btn2_x = sx && el.children[3]
+   var btn1_y = sy && (sx ? el.children[4] : el.children[1]), btn2_y = sy && (sx ? el.children[6] : el.children[3])
    
    var type = 'ontouchstart' in window ? 'touchstart' : 'mousedown'
    
@@ -625,7 +749,7 @@ XScroll.init = function(el, force) {
          e.clientX = e.targetTouches[0].clientX
          e.clientY = e.targetTouches[0].clientY
       }
-      if (XScroll.hasXScroll(this.parentNode.parentNode)) {
+      if (this.parentNode.className.match(/(^|\s)xscroll_track_horz(\s|$)/)) {
          XScroll.delta = e.clientX - window.scrollX - this.getBoundingClientRect().left
       } else {
          XScroll.delta = e.clientY - window.scrollY - this.getBoundingClientRect().top
@@ -636,7 +760,8 @@ XScroll.init = function(el, force) {
       cancelSelection()
       try { if (e.preventDefault) e.preventDefault() } catch(ex) {}
    }
-   addEventHandler(thumb, type, f_down)
+   if (thumb_x) addEventHandler(thumb_x, type, f_down)
+   if (thumb_y) addEventHandler(thumb_y, type, f_down)
    
    var type = 'ontouchmove' in window ? 'touchmove' : 'mousemove'
    
@@ -647,7 +772,7 @@ XScroll.init = function(el, force) {
          e.clientX = e.targetTouches[0].clientX
          e.clientY = e.targetTouches[0].clientY
       }
-      if (XScroll.hasXScroll(XScroll.object.parentNode.parentNode)) {
+      if (XScroll.object.parentNode.className.match(/(^|\s)xscroll_track_horz(\s|$)/)) {
          var x = e.clientX - window.scrollX - XScroll.delta - XScroll.object.parentNode.getBoundingClientRect().left
          if (x < 0) x = 0
          if (x > XScroll.object.parentNode.clientWidth - XScroll.object.clientWidth) {
@@ -680,8 +805,8 @@ XScroll.init = function(el, force) {
    addEventHandler(document, type, f_up)
    
    var type = 'ontouchstart' in window ? 'touchstart' : 'mousedown'
-   if (XScroll.hasXScroll(el)) {
-      addEventHandler(button1, type, function(event) {
+   if (sx) {
+      addEventHandler(btn1_x, type, function(event) {
          if (XScroll.timer) return
          XScroll.scrollLeft(this.parentNode, 40)
          XScroll.timer = setTimeout((function() {
@@ -691,7 +816,7 @@ XScroll.init = function(el, force) {
          }).bind(this), 450)
          cancelEvent(event)
       })
-      addEventHandler(button2, type, function(event) {
+      addEventHandler(btn2_x, type, function(event) {
          if (XScroll.timer) return
          XScroll.scrollRight(this.parentNode, 40)
          XScroll.timer = setTimeout((function() {
@@ -701,8 +826,9 @@ XScroll.init = function(el, force) {
          }).bind(this), 450)
          cancelEvent(event)
       })
-   } else {
-      addEventHandler(button1, type, function(event) {
+   }
+   if (sy) {
+      addEventHandler(btn1_y, type, function(event) {
          if (XScroll.timer) return
          XScroll.scrollUp(this.parentNode, 40)
          XScroll.timer = setTimeout((function() {
@@ -712,7 +838,7 @@ XScroll.init = function(el, force) {
          }).bind(this), 450)
          cancelEvent(event)
       })
-      addEventHandler(button2, type, function(event) {
+      addEventHandler(btn2_y, type, function(event) {
          if (XScroll.timer) return
          XScroll.scrollDown(this.parentNode, 40)
          XScroll.timer = setTimeout((function() {
@@ -818,16 +944,18 @@ XScroll.init = function(el, force) {
 
    var type = 'ontouchend' in window ? 'touchend' : 'mouseup'
 
-   addEventHandler(button1, type, this.private.stopScroll)
-   addEventHandler(button2, type, this.private.stopScroll)
-   addEventHandler(button1, 'mouseout', this.private.stopScroll)
-   addEventHandler(button2, 'mouseout', this.private.stopScroll)
-   addEventHandler(button1, 'click', cancelEvent)
-   addEventHandler(button2, 'click', cancelEvent)
+   var b = [btn1_x, btn2_x, btn1_y, btn2_y]
+   for (var i = 0; i < b.length; i++) {
+      if (b[i]) {
+         addEventHandler(b[i], type, this.private.stopScroll)
+         addEventHandler(b[i], 'mouseout', this.private.stopScroll)
+         addEventHandler(b[i], 'click', cancelEvent)
+      }
+   }
 
-   addEventHandler(track, 'mousedown', function(event) {
+   var f_track_down = function(event) {
       var e = event || window.event
-      if (XScroll.hasXScroll(this.parentNode)) {
+      if (this.className.match(/(^|\s)xscroll_track_horz(\s|$)/)) {
          var pos = this.firstElementChild.getBoundingClientRect().left
          var x = XScroll.getXPosition(this.parentNode)
          delta = Math.round(this.parentNode.clientWidth * 0.1)
@@ -838,7 +966,7 @@ XScroll.init = function(el, force) {
          }
       } else {
          var pos = this.firstElementChild.getBoundingClientRect().top
-         var x = XScroll.getYPosition(this.parentNode)
+         var y = XScroll.getYPosition(this.parentNode)
          delta = this.parentNode.clientHeight
          if (e.clientY - window.scrollY > pos) {
             XScroll.scrollToY(this.parentNode, y+delta)
@@ -846,10 +974,18 @@ XScroll.init = function(el, force) {
             XScroll.scrollToY(this.parentNode, y-delta)
          }
       }
-   })
-   addEventHandler(track, 'click', cancelEvent)
-   addEventHandler(thumb, 'click', cancelEvent)
-
+   }
+   
+   if (track_x) {
+      addEventHandler(track_x, 'mousedown', f_track_down)
+      addEventHandler(track_x, 'click', cancelEvent)
+      addEventHandler(thumb_x, 'click', cancelEvent)
+   }
+   if (track_y) {
+      addEventHandler(track_y, 'mousedown', f_track_down)
+      addEventHandler(track_y, 'click', cancelEvent)
+      addEventHandler(thumb_y, 'click', cancelEvent)
+   }
 
    addWheelHandler(el, function(event) {
       var delta;
@@ -867,7 +1003,7 @@ XScroll.init = function(el, force) {
       try { if (event.preventDefault) event.preventDefault(); } catch(ex) {}
       event.returnValue = false;
 
-      if (XScroll.hasXScroll(this)) {
+      if (XScroll.hasXScroll(this) && (!XScroll.hasYScroll(this) || !XScroll.isYScrollActive(this) || event.shiftKey)) {
          var x = XScroll.getXPosition(this)
          if (this.getAttribute('scroll-delta')) {
             x += delta * parseInt(this.getAttribute('scroll-delta'))
