@@ -467,7 +467,7 @@ XScroll.init = function(el, force) {
       to.style.boxSizing = 'border-box'
       to.style.padding = padding
 
-      if (from.tagName.toLowerCase() != 'textarea') return
+      if (to.tagName.toLowerCase() != 'textarea') return
 
       to.style.borderTop = st['borderTop'] || st['border-top']
       to.style.borderLeft = st['borderLeft'] || st['border-left']
