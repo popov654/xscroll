@@ -6,7 +6,7 @@ XScroll.scrollX = function(obj, ratio) {
    var width = obj.firstElementChild.tagName.toLowerCase() != 'textarea' ?
                obj.firstElementChild.clientWidth : obj.firstElementChild.scrollWidth
    if (width <= obj.clientWidth) return
-   var x = Math.round((obj.firstElementChild.clientWidth - obj.clientWidth) * ratio)
+   var x = Math.round((width - obj.clientWidth) * ratio)
    if (x < 0) x = 0
    if (x > width - obj.clientWidth) {
       x = width - obj.clientWidth
@@ -161,11 +161,11 @@ XScroll.scrollDown = function(obj, delta) {
 }
 
 XScroll.getScrollWidth = function(obj) {
-   return obj.firstElementChild.tagName.toLowerCase() != 'textarea' ? Math.max(0, obj.firstElementChild.clientWidth - obj.clientWidth) : obj.firstElementChild.scrollWidth
+   return obj.firstElementChild.tagName.toLowerCase() != 'textarea' ? obj.firstElementChild.clientWidth - obj.clientWidth : obj.firstElementChild.scrollWidth
 }
 
 XScroll.getScrollHeight = function(obj) {
-   return obj.firstElementChild.tagName.toLowerCase() != 'textarea' ? Math.max(0, obj.firstElementChild.clientHeight - obj.clientHeight) : obj.firstElementChild.scrollHeight
+   return obj.firstElementChild.tagName.toLowerCase() != 'textarea' ? obj.firstElementChild.clientHeight - obj.clientHeight : obj.firstElementChild.scrollHeight
 }
 
 XScroll.updateThumbPosition = function(obj) {
@@ -820,8 +820,6 @@ XScroll.init = function(el, force) {
 
    addEventHandler(button1, type, this.private.stopScroll)
    addEventHandler(button2, type, this.private.stopScroll)
-   addEventHandler(button1, type, this.private.stopScroll)
-   addEventHandler(button2, type, this.private.stopScroll)
    addEventHandler(button1, 'mouseout', this.private.stopScroll)
    addEventHandler(button2, 'mouseout', this.private.stopScroll)
    addEventHandler(button1, 'click', cancelEvent)
@@ -831,7 +829,7 @@ XScroll.init = function(el, force) {
       var e = event || window.event
       if (XScroll.hasXScroll(this.parentNode)) {
          var pos = this.firstElementChild.getBoundingClientRect().left
-         var x = -parseInt(this.parentNode.firstElementChild.style.left)
+         var x = XScroll.getXPosition(this.parentNode)
          delta = Math.round(this.parentNode.clientWidth * 0.1)
          if (e.clientX - window.scrollX > pos) {
             XScroll.scrollToX(this.parentNode, x+delta)
@@ -840,7 +838,7 @@ XScroll.init = function(el, force) {
          }
       } else {
          var pos = this.firstElementChild.getBoundingClientRect().top
-         var y = -parseInt(this.parentNode.firstElementChild.style.top)
+         var x = XScroll.getYPosition(this.parentNode)
          delta = this.parentNode.clientHeight
          if (e.clientY - window.scrollY > pos) {
             XScroll.scrollToY(this.parentNode, y+delta)
