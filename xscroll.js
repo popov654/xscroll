@@ -85,10 +85,6 @@ XScroll.scrollBottom = function(obj) {
 XScroll.scrollToX = function(obj, value) {
    var width = obj.firstElementChild.tagName.toLowerCase() != 'textarea' ?
                obj.firstElementChild.clientWidth : obj.firstElementChild.scrollWidth
-   if (width <= obj.clientWidth) {
-      var x = XScroll.getXPosition(obj)
-      if (x <= width - obj.clientWidth) return
-   }
    var limit = Math.max(0, width - obj.clientWidth)
    if (value < 0) value = 0
    if (value > limit) {
@@ -108,10 +104,6 @@ XScroll.scrollToX = function(obj, value) {
 XScroll.scrollToY = function(obj, value) {
    var height = obj.firstElementChild.tagName.toLowerCase() != 'textarea' ?
                 obj.firstElementChild.clientHeight : obj.firstElementChild.scrollHeight
-   if (height <= obj.clientHeight) {
-      var y = XScroll.getYPosition(obj)
-      if (y <= height - obj.clientHeight) return
-   }
    var limit = Math.max(0, height - obj.clientHeight)
    if (value < 0) value = 0
    if (value > limit) {
