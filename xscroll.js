@@ -898,9 +898,16 @@ XScroll.init = function(el, force) {
          }
       });
    } else {
-      addEventHandler(el.firstChild, 'DOMSubtreeModified', function () {
+      var f_update_content = function () {
          XScroll.updateThumbPosition(this.parentNode);
-      }, false);
+      }
+      addEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content);
+      XScroll.freeze = function(el) {
+         removeEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content);
+      }
+      XScroll.resume = function(el) {
+         addEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content);
+      }
    }
 
    if (!el.configured) {
