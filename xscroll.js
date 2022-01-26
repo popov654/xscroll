@@ -898,15 +898,34 @@ XScroll.init = function(el, force) {
          }
       });
    } else {
-      var f_update_content = function () {
-         XScroll.updateThumbPosition(this.parentNode);
+      function debounce(f, t) {
+         let busy = false
+         let timer = null
+         return function() {
+            if (timer) {
+               clearTimeout(timer)
+               timer = null
+            }
+            if (busy) {
+               let self = this
+               timer = setTimeout(function() { f.apply(self, arguments) }, t)
+               return
+            }
+            busy = true
+            f.apply(this, arguments)
+            setTimeout(function() { busy = false }, t)
+         };
       }
+      var f_update_content = debounce(function () {
+         XScroll.updateThumbPosition(this.parentNode);
+      }, 150)
+      var enabled = true
       addEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content);
       XScroll.freeze = function(el) {
-         removeEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content);
+         if (enabled) { removeEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content); enabled = false; }
       }
       XScroll.resume = function(el) {
-         addEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content);
+         if (!enabled) { addEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content); enabled = true; }
       }
    }
 
