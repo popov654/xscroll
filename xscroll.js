@@ -1316,15 +1316,15 @@ if (!window.addWheelHandler) {
             // IE9+, FF17+
             elem.addEventListener ("wheel", func, false);
          } else if ('onmousewheel' in document) {
-            // устаревший вариант события
+            // СѓСЃС‚Р°СЂРµРІС€РёР№ РІР°СЂРёР°РЅС‚ СЃРѕР±С‹С‚РёСЏ
             elem.addEventListener ("mousewheel", func, false);
          } else {
-             // 3.5 <= Firefox < 17, более старое событие DOMMouseScroll пропустим
-             elem.addEventListener ("MozMousePixelScroll", func, false);
+            // 3.5 <= Firefox < 17, Р±РѕР»РµРµ СЃС‚Р°СЂРѕРµ СЃРѕР±С‹С‚РёРµ DOMMouseScroll РїСЂРѕРїСѓСЃС‚РёРј
+            elem.addEventListener ("MozMousePixelScroll", func, false);
          }
-       } else { // IE<9
-          elem.attachEvent ("onmousewheel", func);
-       }
+      } else { // IE<9
+         elem.attachEvent ("onmousewheel", func);
+      }
    }
 }
 
