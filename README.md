@@ -4,7 +4,7 @@ Inertial scrolling on touch devices is also supported by default
 
 ### Usage
 
-Please see the exa,ples, they are quite self-explanatory.
+Please see the examples, they are quite self-explanatory.
 
 Some hints:
 
