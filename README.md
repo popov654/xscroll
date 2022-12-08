@@ -14,12 +14,13 @@ Some hints:
 4. When there is little content the scrollbars will disappear and then come back when necessary thanks to the DOM modification watching
 5. Everything about sizing and behavior is controlled via attributes. The most useful are:
 
-|  Attribute          |  Description                                       |
-|---------------------|----------------------------------------------------|
-| __scroll-size__     |  the width of the scrollbar                        |
-| __button-size__     |  the width of the buttons along the scroll axis    |
-| __thumb-length__    |  the width of the thumb along the scroll axis      |
-| __thumb-width__     |  the width of the thumb along the cross-axis<br>(the thumb can be narrower or wider than the scrollbar) |
-| __scroll-delta__    |  one mouse wheel tick will scroll the contents by this amount of pixels |
-| __viewport-width__  |  the width of the viewport                             |
-| __viewport-height__ |  the height of the viewport                            |
+|  Attribute              |  Description                                       |
+|-------------------------|----------------------------------------------------|
+| __scroll-size__         |  the width of the scrollbar                        |
+| __button-size__         |  the width of the buttons along the scroll axis    |
+| __thumb-length__        |  the width of the thumb along the scroll axis      |
+| __thumb-width__         |  the width of the thumb along the cross-axis<br>(the thumb can be narrower or wider than the scrollbar) |
+| __scroll-delta__        |  one mouse wheel tick will scroll the contents by this amount of pixels |
+| __viewport-width__      |  the width of the viewport                             |
+| __viewport-height__     |  the height of the viewport                            |
+| __xscroll-allow-async__ |  allow delayed initialization for more accurate container's width calculation |

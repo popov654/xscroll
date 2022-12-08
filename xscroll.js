@@ -501,7 +501,7 @@ XScroll.init = function(el, force) {
    
    var st = el.currentStyle || getComputedStyle(el, '')
    
-   if (el.force_scroll_x === undefined) {
+   if (el.force_scroll_x === undefined && el.getAttribute('xscroll-allow-async')) {
       XScroll.private.checkOverflow(el, c, st)
       setTimeout(function() { XScroll.init(el, force) }, 130)
       return
@@ -917,8 +917,10 @@ XScroll.init = function(el, force) {
          };
       }
       var f_update_content = debounce(function () {
-         XScroll.updateThumbPosition(this.parentNode);
-      }, 150)
+         addEventHandler(el.firstChild, 'DOMSubtreeModified', function() {
+            XScroll.updateThumbPosition(this.parentNode);
+         })
+      }, 150);
       var enabled = true
       addEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content);
       XScroll.freeze = function(el) {
