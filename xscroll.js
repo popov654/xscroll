@@ -230,6 +230,10 @@ XScroll.private.setYThumb = function(obj, ratio) {
 XScroll.private.updateXState = function(obj, enable) {
    if (obj.children[0].tagName.toLowerCase() == 'textarea') {
       obj.children[0].style.bottom = (enable ? obj.children[2].clientHeight : 0) + 'px'
+   } else if (obj.getAttribute('content-offset')) {
+      obj.children[0].style.bottom = enable ? obj.getAttribute('content-offset') + 'px' : '0'
+   } else {
+      obj.children[0].style.bottom = '0px'
    }
    obj.children[1].style.display = enable ? '' : 'none'
    obj.children[2].style.display = enable ? '' : 'none'
@@ -239,8 +243,12 @@ XScroll.private.updateXState = function(obj, enable) {
 
 XScroll.private.updateYState = function(obj, enable) {
    var i = XScroll.hasXScroll(obj) ? 3 : 0
-   if (!XScroll.isXScrollActive(obj) || obj.children[0].tagName.toLowerCase() == 'textarea') {
+   if (obj.children[0].tagName.toLowerCase() == 'textarea') {
       obj.children[0].style.right = (enable ? obj.children[i+2].clientWidth : 0) + 'px'
+   } else if (obj.getAttribute('content-offset')) {
+      obj.children[0].style.right = enable ? obj.getAttribute('content-offset') + 'px' : '0'
+   } else {
+      obj.children[0].style.right = '0px'
    }
    obj.children[i+1].style.display = enable ? '' : 'none'
    obj.children[i+2].style.display = enable ? '' : 'none'

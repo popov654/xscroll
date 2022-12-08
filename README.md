@@ -24,3 +24,4 @@ Some hints:
 | __viewport-width__      |  the width of the viewport                             |
 | __viewport-height__     |  the height of the viewport                            |
 | __xscroll-allow-async__ |  allow delayed initialization for more accurate container's width calculation |
+| __content-offset__      |  the offset from the edge of content to the edge of the container (default 0) |
