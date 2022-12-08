@@ -728,6 +728,19 @@ XScroll.init = function(el, force) {
       el.className += ' scroll_x'
    }
    
+   addEventHandler(el, 'scroll', function() {
+      this.floatPositionX = this.scrollWidth > 0 ? this.scrollLeft / this.scrollWidth : 0
+      this.floatPositionY = this.scrollHeight > 0 ? this.scrollTop / this.scrollHeight : 0
+   })
+   
+   addEventHandler(window, 'resize', function() {
+      var els = getElementsByClass('scrollable', document.body, '*')
+      for (var i = 0; i < els.length; i++) {
+         if (els[i].floatPositionX) els[i].scrollLeft = els[i].scrollWidth * els[i].floatPositionX
+         if (els[i].floatPositionY) els[i].scrollTop = els[i].scrollHeight * els[i].floatPositionY
+      }
+   })
+   
    var opts = { tag: tag, size: size }
    XScroll.private.createScroll(el, opts, c, 'x')
    XScroll.private.createScroll(el, opts, c, 'y')
