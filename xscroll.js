@@ -3,7 +3,7 @@ var XScroll = {}
 XScroll.private = {}
 
 XScroll.scrollX = function(obj, ratio) {
-   var width = obj.firstElementChild.tagName.toLowerCase() != 'textarea' ?
+   var width = obj.firstElementChild.tagName.toLowerCase() != 'textarea' && !obj.firstElementChild.contenteditable ?
                obj.firstElementChild.clientWidth : obj.firstElementChild.scrollWidth
    if (width <= obj.clientWidth) return
    var x = Math.round((width - obj.clientWidth) * ratio)
@@ -11,7 +11,7 @@ XScroll.scrollX = function(obj, ratio) {
    if (x > width - obj.clientWidth) {
       x = width - obj.clientWidth
    }
-   if (obj.firstElementChild.tagName.toLowerCase() != 'textarea') {
+   if (obj.firstElementChild.tagName.toLowerCase() != 'textarea' && !obj.firstElementChild.contenteditable) {
       obj.firstElementChild.style.left = -x + 'px'
    } else {
       obj.firstElementChild.scrollLeft = x
@@ -21,7 +21,7 @@ XScroll.scrollX = function(obj, ratio) {
 }
 
 XScroll.scrollY = function(obj, ratio) {
-   var height = obj.firstElementChild.tagName.toLowerCase() != 'textarea' ?
+   var height = obj.firstElementChild.tagName.toLowerCase() != 'textarea' && !obj.firstElementChild.contenteditable ?
                 obj.firstElementChild.clientHeight : obj.firstElementChild.scrollHeight
    if (height <= obj.clientHeight) return
    var y = Math.round((height - obj.clientHeight) * ratio)
@@ -84,7 +84,7 @@ XScroll.scrollBottom = function(obj, force) {
 }
 
 XScroll.scrollToX = function(obj, value) {
-   var width = obj.firstElementChild.tagName.toLowerCase() != 'textarea' ?
+   var width = obj.firstElementChild.tagName.toLowerCase() != 'textarea' && !obj.firstElementChild.contenteditable ?
                obj.firstElementChild.clientWidth : obj.firstElementChild.scrollWidth
    var limit = Math.max(0, width - obj.clientWidth)
    if (value < 0) value = 0
@@ -103,7 +103,7 @@ XScroll.scrollToX = function(obj, value) {
 }
 
 XScroll.scrollToY = function(obj, value) {
-   var height = obj.firstElementChild.tagName.toLowerCase() != 'textarea' ?
+   var height = obj.firstElementChild.tagName.toLowerCase() != 'textarea' && !obj.firstElementChild.contenteditable ?
                 obj.firstElementChild.clientHeight : obj.firstElementChild.scrollHeight
    var limit = Math.max(0, height - obj.clientHeight)
    if (value < 0) value = 0
@@ -154,11 +154,11 @@ XScroll.scrollDown = function(obj, delta) {
 }
 
 XScroll.getScrollWidth = function(obj) {
-   return obj.firstElementChild.tagName.toLowerCase() != 'textarea' ? obj.firstElementChild.clientWidth : obj.firstElementChild.scrollWidth
+   return obj.firstElementChild.tagName.toLowerCase() != 'textarea' && !obj.firstElementChild.contenteditable ? obj.firstElementChild.clientWidth : obj.firstElementChild.scrollWidth
 }
 
 XScroll.getScrollHeight = function(obj) {
-   return obj.firstElementChild.tagName.toLowerCase() != 'textarea' ? obj.firstElementChild.clientHeight : obj.firstElementChild.scrollHeight
+   return obj.firstElementChild.tagName.toLowerCase() != 'textarea' && !obj.firstElementChild.contenteditable ? obj.firstElementChild.clientHeight : obj.firstElementChild.scrollHeight
 }
 
 XScroll.updateThumbPosition = function(obj) {
@@ -174,7 +174,7 @@ XScroll.private.updateThumbXPosition = function(obj) {
    var x = obj.firstElementChild.tagName.toLowerCase() != 'textarea' ?
            - obj.firstElementChild.offsetLeft : obj.firstElementChild.scrollLeft
 
-   var width = obj.firstElementChild.tagName.toLowerCase() != 'textarea' ?
+   var width = obj.firstElementChild.tagName.toLowerCase() != 'textarea' && !obj.firstElementChild.contenteditable ?
                 obj.firstElementChild.clientWidth - obj.clientWidth : obj.firstElementChild.scrollWidth - obj.clientWidth
 
    if (width <= 0) width = 0
@@ -186,7 +186,7 @@ XScroll.private.updateThumbYPosition = function(obj) {
    var y = obj.firstElementChild.tagName.toLowerCase() != 'textarea' ?
            - obj.firstElementChild.offsetTop : obj.firstElementChild.scrollTop
 
-   var height = obj.firstElementChild.tagName.toLowerCase() != 'textarea' ?
+   var height = obj.firstElementChild.tagName.toLowerCase() != 'textarea' && !obj.firstElementChild.contenteditable ?
                 obj.firstElementChild.clientHeight - obj.clientHeight : obj.firstElementChild.scrollHeight - obj.clientHeight
 
    if (height <= 0) height = 0
@@ -229,7 +229,7 @@ XScroll.private.setYThumb = function(obj, ratio) {
 }
 
 XScroll.private.updateXState = function(obj, enable) {
-   if (obj.children[0].tagName.toLowerCase() == 'textarea') {
+   if (obj.children[0].tagName.toLowerCase() == 'textarea' || obj.children[0].contenteditable) {
       obj.children[0].style.bottom = (enable ? obj.children[2].clientHeight : 0) + 'px'
    } else if (obj.getAttribute('content-offset')) {
       obj.children[0].style.bottom = enable ? obj.getAttribute('content-offset') + 'px' : '0'
@@ -244,7 +244,7 @@ XScroll.private.updateXState = function(obj, enable) {
 
 XScroll.private.updateYState = function(obj, enable) {
    var i = XScroll.hasXScroll(obj) ? 3 : 0
-   if (obj.children[0].tagName.toLowerCase() == 'textarea') {
+   if (!obj.getAttribute('content-offset') || obj.children[0].tagName.toLowerCase() == 'textarea' || obj.children[0].contenteditable) {
       obj.children[0].style.right = (enable ? obj.children[i+2].clientWidth : 0) + 'px'
    } else if (obj.getAttribute('content-offset')) {
       obj.children[0].style.right = enable ? obj.getAttribute('content-offset') + 'px' : '0'
@@ -266,11 +266,13 @@ XScroll.updateThumbSize = function(obj, axis) {
    if (XScroll.hasXScroll(obj) && obj.clientWidth == 0 || XScroll.hasYScroll(obj) && obj.clientHeight == 0) return
    if (!obj.getAttribute('thumb-length')) {
       if (axis == 'x') {
+         var width = obj.children[0].tagName.toLowerCase() == 'textarea' ? obj.children[0].scrollHeight : obj.children[0].clientWidth
          thumb_size = Math.max(Math.round((obj.clientWidth - button_size * 2) *
-                               Math.min(1, (obj.clientWidth / obj.children[0].clientWidth))), thumb_size)
+                               Math.min(1, (obj.clientWidth / (obj.children[0].clientWidth - width)))), thumb_size)
       } else {
+         var height = obj.children[0].tagName.toLowerCase() == 'textarea' ? obj.children[0].scrollHeight : obj.children[0].clientHeight
          thumb_size = Math.max(Math.round((obj.clientHeight - button_size * 2) *
-                               Math.min(1, (obj.clientHeight / obj.children[0].clientHeight))), thumb_size)
+                               Math.min(1, (obj.clientHeight / (obj.children[0].clientHeight - height)))), thumb_size)
       }
    } else {
       thumb_size = parseInt(obj.getAttribute('thumb-length'))
@@ -546,8 +548,8 @@ XScroll.init = function(el, force) {
          h += pad_t + pad_b
       }
       if (sizing == 'content-box' || sizing == 'padding-box') {
-         var b_t = (st['borderTop']) ? parseInt(st['borderTop']) : parseInt(st['border-top'])
-         var b_b = (st['borderBottom']) ? parseInt(st['borderBottom']) : parseInt(st['border-bottom'])
+         var b_t = (st['borderTop']) ? parseInt(st['borderTopWidth']) : parseInt(st['border-top-width'])
+         var b_b = (st['borderBottom']) ? parseInt(st['borderBottomWidth']) : parseInt(st['border-bottom-width'])
          h += b_t + b_b
       }
       el.style.height = h + 'px'
@@ -622,6 +624,10 @@ XScroll.init = function(el, force) {
       el = temp
    } else {
       copyStyles(el, c)
+      if (el.contenteditable) {
+         el.contenteditable = false
+         c.setAttribute('contenteditable', 'true')
+      }
    }
    
    function copyStyles(from, to) {
@@ -706,13 +712,13 @@ XScroll.init = function(el, force) {
    if (!el.style.width.match(/%$/)) el.style.width = parseInt(el.style.width) - parseInt(st['borderLeftWidth']) - parseInt(st['borderRightWidth']) + 'px'
    if (!el.style.height.match(/%$/)) el.style.height = parseInt(el.style.height) - parseInt(st['borderTopWidth']) - parseInt(st['borderBottomWidth']) + 'px'
 
-   if (XScroll.hasXScroll(el) && tag == 'textarea') {
+   if (XScroll.hasXScroll(el) && (tag == 'textarea' || c.contenteditable)) {
       c.style.bottom = size + 'px'
    }
-   if (XScroll.hasYScroll(el) && tag == 'textarea') {
+   if (XScroll.hasYScroll(el) && (tag == 'textarea' || c.contenteditable)) {
       c.style.right = size + 'px'
    }
-   if (tag == 'textarea') {
+   if (tag == 'textarea' || c.contenteditable) {
       if (XScroll.hasXScroll(el)) {
          c.style.height = parseInt(el.style.height) - size + 'px'
          c.style.width = parseInt(el.style.width) + 'px'
@@ -864,7 +870,7 @@ XScroll.init = function(el, force) {
       })
    }
 
-   if (tag == 'textarea') {
+   if (tag == 'textarea' || c.getAttribute('contenteditable') !== null) {
       addEventHandler(el.firstChild, 'input', function() {
          var x = XScroll.hasXScroll(this.parentNode)
          var y = XScroll.hasYScroll(this.parentNode)
@@ -901,11 +907,28 @@ XScroll.init = function(el, force) {
          }
       })
       addEventHandler(el.firstChild, 'scroll', function() { XScroll.updateThumbPosition(this.parentNode) })
-      Object.defineProperty(el, 'value', {
+      if (tag == 'textarea' || el.firstChild.getAttribute('contenteditable') !== null) Object.defineProperty(el, 'value', {
          get: function() {
+            if (this.firstChild.getAttribute('contenteditable') !== null) {
+               var p = []
+               var blocks = this.firstChild.children
+               for (var i = 0; i < blocks.length; i++) {
+                  p.push(blocks[i].innerHTML)
+               }
+               return p.join('\n').replace(/(<br>)+$/, '')
+            }
             return this.firstChild && this.firstChild.value;
          },
          set: function(value) {
+            if (this.firstChild.getAttribute('contenteditable') !== null) {
+               var blocks = []
+               var s = value.split('\n')
+               for (var i = 0; i < s.length; i++) {
+                  blocks.push(s[i] + '<br>')
+               }
+               this.firstChild.innerHTML = '<div>' + blocks.join('</div><div>') + '</div>'
+               return
+            }
             if (this.firstChild && this.firstChild.value) {
                this.firstChild.value = value;
                XScroll.updateThumbPosition(this)
@@ -940,7 +963,6 @@ XScroll.init = function(el, force) {
       }
       var f_update_content = debounce(function () {
          XScroll.updateThumbPosition(this.parentNode);
-         console.log("Timestamp: " + (+(new Date())), - this.offsetTop, this.clientHeight - this.parentNode.clientHeight)
       }, 150);
       var enabled = true
       addEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content);
