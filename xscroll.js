@@ -71,7 +71,8 @@ XScroll.scrollTop = function(obj) {
    XScroll.fireEvent(obj, 'scrollend')
 }
 
-XScroll.scrollBottom = function(obj) {
+XScroll.scrollBottom = function(obj, force) {
+   if (!force && obj.clientHeight >= obj.firstElementChild.clientHeight) return
    if (obj.firstElementChild.tagName.toLowerCase() != 'textarea') {
       obj.firstElementChild.style.top = obj.clientHeight - obj.firstElementChild.clientHeight + 'px'
    } else {
@@ -177,8 +178,8 @@ XScroll.private.updateThumbXPosition = function(obj) {
                 obj.firstElementChild.clientWidth - obj.clientWidth : obj.firstElementChild.scrollWidth - obj.clientWidth
 
    if (width <= 0) width = 0
-   this.setXThumb(obj, x / width)
    this.updateXState(obj, width > 0)
+   this.setXThumb(obj, x / width)
 }
 
 XScroll.private.updateThumbYPosition = function(obj) {
@@ -189,8 +190,8 @@ XScroll.private.updateThumbYPosition = function(obj) {
                 obj.firstElementChild.clientHeight - obj.clientHeight : obj.firstElementChild.scrollHeight - obj.clientHeight
 
    if (height <= 0) height = 0
-   this.setYThumb(obj, y / height)
    this.updateYState(obj, height > 0)
+   this.setYThumb(obj, y / height)
 }
 
 XScroll.getPosition = function(obj) {
@@ -938,9 +939,8 @@ XScroll.init = function(el, force) {
          };
       }
       var f_update_content = debounce(function () {
-         addEventHandler(el.firstChild, 'DOMSubtreeModified', function() {
-            XScroll.updateThumbPosition(this.parentNode);
-         })
+         XScroll.updateThumbPosition(this.parentNode);
+         console.log("Timestamp: " + (+(new Date())), - this.offsetTop, this.clientHeight - this.parentNode.clientHeight)
       }, 150);
       var enabled = true
       addEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content);
