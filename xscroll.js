@@ -950,14 +950,14 @@ XScroll.init = function(el, force) {
                return
             }
             if (this.firstChild && this.firstChild.value) {
-               this.firstChild.value = value;
+               this.firstChild.value = value
                XScroll.updateThumbPosition(this)
                if (this.firstChild.fireEvent) {
-                  this.firstChild.fireEvent('oninput');
+                  this.firstChild.fireEvent('oninput')
                } else if (this.firstChild.dispatchEvent) {
-                  var event = document.createEvent('HTMLEvents');
-                  event.initEvent('input', true, true);
-                  this.firstChild.dispatchEvent(event);
+                  var event = document.createEvent('HTMLEvents')
+                  event.initEvent('input', true, true)
+                  this.firstChild.dispatchEvent(event)
                }
             }
          }
@@ -969,25 +969,25 @@ XScroll.init = function(el, force) {
    if (!el.configured) {
       Object.defineProperty(el, 'scrollLeft', {
          get: function() {
-            return XScroll.getXPosition(this);
+            return XScroll.getXPosition(this)
          },
          set: function(value) {
-            XScroll.scrollToX(this, value);
+            XScroll.scrollToX(this, value)
          }
       });
 
       Object.defineProperty(el, 'scrollTop', {
          get: function() {
-            return XScroll.getYPosition(this);
+            return XScroll.getYPosition(this)
          },
          set: function(value) {
-            XScroll.scrollToY(this, value);
+            XScroll.scrollToY(this, value)
          }
       });
       
       Object.defineProperty(el, 'scrollHeight', {
          get: function() {
-            return XScroll.getScrollHeight(this);
+            return XScroll.getScrollHeight(this)
          },
          set: function(value) {
             return
