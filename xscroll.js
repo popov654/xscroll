@@ -635,6 +635,10 @@ XScroll.init = function(el, force) {
       var st2 = to.currentStyle || getComputedStyle(to, '')
       to.style.display = (st.display == 'block') ? 'block' : 'inline-block'
       to.style.background = st.background
+      to.style.minWidth = from.style.minWidth
+      to.style.maxWidth = from.style.maxWidth
+      to.style.minHeight = from.style.minHeight
+      to.style.maxHeight = from.style.maxHeight
       if (st && to.style.background == '') {
          to.style.backgroundColor = st.backgroundColor
          to.style.backgroundImage = st.backgroundImage
