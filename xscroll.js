@@ -647,9 +647,7 @@ XScroll.init = function(el, force) {
          to.style.backgroundRepeat = st.backgroundRepeat
       }
 
-      to.style.boxShadow = st['boxShadow'] || st['box-shadow']
       from.style.background = 'none'
-      from.style.boxShadow = 'none'
       from.style.overflow = 'hidden'
       from.style.fontFamily = st['fontFamily'] || st['font-family']
       from.style.fontSize = st['fontSize'] || st['font-size']
