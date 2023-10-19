@@ -540,16 +540,16 @@ XScroll.init = function(el, force) {
       if (parseInt(el.style.height) < el.getAttribute('viewport-height') && tag != 'textarea' && !force) return
       el.style.height = parseInt(el.getAttribute('viewport-height')) + 'px'
    } else if (!st.height.match(/%$/)) {
-      var h = parseInt(st.height)
+      var h = parseInt(st.height) > 0 ? parseFloat(st.height) : parseFloat(st.maxHeight)
       var sizing = (st['boxSizing']) ? st['boxSizing'] : st['box-sizing']
       if (sizing == 'content-box') {
-         var pad_t = (st['paddingTop']) ? parseInt(st['paddingTop']) : parseInt(st['padding-top'])
-         var pad_b = (st['paddingBottom']) ? parseInt(st['paddingBottom']) : parseInt(st['padding-bottom'])
+         var pad_t = (st['paddingTop']) ? parseFloat(st['paddingTop']) : parseFloat(st['padding-top'])
+         var pad_b = (st['paddingBottom']) ? parseFloat(st['paddingBottom']) : parseFloat(st['padding-bottom'])
          h += pad_t + pad_b
       }
       if (sizing == 'content-box' || sizing == 'padding-box') {
-         var b_t = (st['borderTop']) ? parseInt(st['borderTopWidth']) : parseInt(st['border-top-width'])
-         var b_b = (st['borderBottom']) ? parseInt(st['borderBottomWidth']) : parseInt(st['border-bottom-width'])
+         var b_t = (st['borderTop']) ? parseFloat(st['borderTop']) : parseFloat(st['border-top'])
+         var b_b = (st['borderBottom']) ? parseFloat(st['borderBottom']) : parseFloat(st['border-bottom'])
          h += b_t + b_b
       }
       el.style.height = h + 'px'
@@ -579,13 +579,13 @@ XScroll.init = function(el, force) {
       if (w > 0) {
          var sizing = (st['boxSizing']) ? st['boxSizing'] : st['box-sizing']
          if (sizing == 'content-box') {
-            var pad_l = (st['paddingLeft']) ? parseInt(st['paddingLeft']) : parseInt(st['padding-left'])
-            var pad_r = (st['paddingRight']) ? parseInt(st['paddingRight']) : parseInt(st['padding-right'])
+            var pad_l = (st['paddingLeft']) ? parseFloat(st['paddingLeft']) : parseFloat(st['padding-left'])
+            var pad_r = (st['paddingRight']) ? parseFloat(st['paddingRight']) : parseFloat(st['padding-right'])
             w += pad_l + pad_r
          }
          if (sizing == 'content-box' || sizing == 'padding-box') {
-            var b_l = (st['borderLeftWidth']) ? parseInt(st['borderLeftWidth']) : parseInt(st['border-left-width'])
-            var b_r = (st['borderRightWidth']) ? parseInt(st['borderRightWidth']) : parseInt(st['border-right-width'])
+            var b_l = (st['borderLeftWidth']) ? parseFloat(st['borderLeftWidth']) : parseFloat(st['border-left-width'])
+            var b_r = (st['borderRightWidth']) ? parseFloat(st['borderRightWidth']) : parseFloat(st['border-right-width'])
             w += b_l + b_r
          }
          el.style.width = w + 'px'
