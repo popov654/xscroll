@@ -877,15 +877,29 @@ XScroll.init = function(el, force) {
    }, 250);
    var update_enabled = true
    
+   var observer = null
+   
+   if ('MutationObserver' in window) {
+      observer = new MutationObserver(f_update_content)
+   }
+   
    XScroll.freeze = function(el) {
       if (update_enabled && tag != 'textarea') {
-         removeEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content)
+         if (observer && observer.disconnect) {
+            observer.disconnect()
+         } else {
+            removeEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content)
+         }
          enabled = false
       }
    }
    XScroll.resume = function(el) {
       if (!update_enabled && tag != 'textarea') {
-         addEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content)
+         if (observer && observer.observe) {
+            observer.observe(el.firstChild, { childList: true, subtree: true })
+         } else {
+            addEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content)
+         }
          enabled = true
       }
    }
@@ -963,7 +977,11 @@ XScroll.init = function(el, force) {
          }
       });
    } else {
-      addEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content);
+      if (observer && observer.observe) {
+         observer.observe(el.firstChild, { childList: true, subtree: true })
+      } else {
+         addEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content)
+      }
    }
 
    if (!el.configured) {
