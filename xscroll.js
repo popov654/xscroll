@@ -512,7 +512,7 @@ XScroll.init = function(el, force) {
    
    var st = el.currentStyle || getComputedStyle(el, '')
    
-   if (el.force_scroll_x === undefined && el.getAttribute('xscroll-allow-async') !== null) {
+   if (el.force_scroll_x === undefined && el.getAttribute('xscroll-allow-async')) {
       XScroll.private.checkOverflow(el, c, st)
       setTimeout(function() { XScroll.init(el, force) }, 130)
       return
@@ -870,7 +870,8 @@ XScroll.init = function(el, force) {
    }
    
    var f_update_content = debounce(function(data) {
-      XScroll.updateThumbPosition(this.parentNode);
+      var target = data ? data[0].target : this
+      XScroll.updateThumbPosition(target)
    }, 250);
    var update_enabled = true
    
