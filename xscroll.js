@@ -871,6 +871,24 @@ XScroll.init = function(el, force) {
          cancelEvent(event)
       })
    }
+   
+   var f_update_content = debounce(function(data) {
+      XScroll.updateThumbPosition(this.parentNode);
+   }, 250);
+   var update_enabled = true
+   
+   XScroll.freeze = function(el) {
+      if (update_enabled && tag != 'textarea') {
+         removeEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content)
+         enabled = false
+      }
+   }
+   XScroll.resume = function(el) {
+      if (!update_enabled && tag != 'textarea') {
+         addEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content)
+         enabled = true
+      }
+   }
 
    if (tag == 'textarea' || c.getAttribute('contenteditable') !== null) {
       addEventHandler(el.firstChild, 'input', function() {
@@ -945,35 +963,7 @@ XScroll.init = function(el, force) {
          }
       });
    } else {
-      function debounce(f, t) {
-         let busy = false
-         let timer = null
-         return function() {
-            if (timer) {
-               clearTimeout(timer)
-               timer = null
-            }
-            if (busy) {
-               let self = this
-               timer = setTimeout(function() { f.apply(self, arguments) }, t)
-               return
-            }
-            busy = true
-            f.apply(this, arguments)
-            setTimeout(function() { busy = false }, t)
-         };
-      }
-      var f_update_content = debounce(function () {
-         XScroll.updateThumbPosition(this.parentNode);
-      }, 150);
-      var enabled = true
       addEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content);
-      XScroll.freeze = function(el) {
-         if (enabled) { removeEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content); enabled = false; }
-      }
-      XScroll.resume = function(el) {
-         if (!enabled) { addEventHandler(el.firstChild, 'DOMSubtreeModified', f_update_content); enabled = true; }
-      }
    }
 
    if (!el.configured) {
@@ -1399,4 +1389,23 @@ function restoreSelection() {
 function addEventHandler(obj, type, func) {
    if (document.addEventListener) obj.addEventListener(type, func, false)
    else obj.attachEvent('on' + type, func)
+}
+
+function debounce(func, timeout) {
+   var last = 0
+   var busy = false
+   return function() {
+      if (Date.now() - last > timeout) {
+         busy = true
+         try {
+            func.apply(this, arguments)
+         } catch (e) {
+            console.log(e)
+         } finally {
+            last = Date.now()
+            busy = false
+         }
+      }
+   }
+   var timer = null
 }
