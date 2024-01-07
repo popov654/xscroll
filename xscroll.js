@@ -518,6 +518,10 @@ XScroll.init = function(el, force) {
       return
    }
    
+   if (el.configured) {
+      el.style.padding = ''
+   }
+   
    if (tag != 'textarea') {
       var len = el.childNodes.length
       for (var i = 0; i < len; i++) {
