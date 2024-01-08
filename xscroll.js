@@ -520,6 +520,8 @@ XScroll.init = function(el, force) {
    
    if (el.configured) {
       el.style.padding = ''
+      el.style.background = ''
+      el.style.overflow = ''
    }
    
    if (tag != 'textarea') {
