@@ -162,6 +162,7 @@ XScroll.getScrollHeight = function(obj) {
 }
 
 XScroll.updateThumbPosition = function(obj) {
+   if (obj.children.length < 4) return
    if (XScroll.hasXScroll(obj)) {
       this.private.updateThumbXPosition(obj)
    }
@@ -203,11 +204,13 @@ XScroll.getPosition = function(obj) {
 }
 
 XScroll.getXPosition = function(obj) {
+   if (obj.children.length < 4) return obj.scrollLeft
    return obj.firstElementChild.tagName.toLowerCase() != 'textarea' ?
            - obj.firstElementChild.offsetLeft : obj.firstElementChild.scrollLeft
 }
 
 XScroll.getYPosition = function(obj) {
+   if (obj.children.length < 4) return obj.scrollTop
    return obj.firstElementChild.tagName.toLowerCase() != 'textarea' ?
            - obj.firstElementChild.offsetTop : obj.firstElementChild.scrollTop
 }
