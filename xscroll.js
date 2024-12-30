@@ -585,7 +585,7 @@ XScroll.init = function(el, force) {
             el2 = el2.parentNode
          }
       } else {
-         w = parseInt(st.width - parseInt(st.paddingLeft) - parseInt(st.paddingRight))
+         w = parseInt(st.width) - parseInt(st.paddingLeft) - parseInt(st.paddingRight)
       }
       if (w > 0) {
          var sizing = (st['boxSizing']) ? st['boxSizing'] : st['box-sizing']
@@ -1421,6 +1421,10 @@ function debounce(func, timeout) {
    var busy = false
    return function() {
       if (Date.now() - last > timeout) {
+         if (busy) {
+            timer = setTimeout(arguments.callee, timeout)
+            return
+         }
          busy = true
          try {
             func.apply(this, arguments)
@@ -1429,6 +1433,10 @@ function debounce(func, timeout) {
          } finally {
             last = Date.now()
             busy = false
+            if (timer) {
+               clearTimeout(timer)
+            }
+            timer = null
          }
       }
    }
