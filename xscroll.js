@@ -1068,6 +1068,10 @@ XScroll.init = function(el, force) {
    }
 
    addWheelHandler(el, function(event) {
+      if (event.ctrlKey) {
+         return
+      }
+
       var delta;
       event = event || window.event;
 
