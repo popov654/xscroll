@@ -573,12 +573,17 @@ XScroll.init = function(el, force) {
       c.style.width = 'auto'
    } else if (!el.force_scroll_x && !(st.left.match(/^\d+%$/) && st.right.match(/^\d+%$/)) && !st.width.match(/^\d+%$/)){
       var w = 0
-      if (st.width == 'auto') {
+      el.parentNode.style.display = 'none'
+      var _width = st.width
+      el.parentNode.style.display = ''
+      if (_width == 'auto') {
          var el2 = el
-         w = st.width
+         w = _width
          while (el2 != document && w == 'auto') {
             var st2 = el2.currentStyle ? el2.currentStyle : getComputedStyle(el2, '')
+            el2.parentNode.style.display = 'none'
             w = st2.width
+            el2.parentNode.style.display = ''
             if (w == 'auto' && st2.position == 'absolute' && st2.left != 'auto' && st2.right != 'auto' || el2.clientWidth > 0) {
                w = parseInt(el2.clientWidth - parseInt(st2.paddingLeft) - parseInt(st2.paddingRight))
             }
