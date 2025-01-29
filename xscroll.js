@@ -1159,7 +1159,10 @@ XScroll.fireEvent = function(element, type) {
       }
    }
    
-   element.dispatchEvent(new CustomEvent(type))
+   var event = new CustomEvent(type)
+   event.target = element
+   
+   element.dispatchEvent(event)
 }
 
 XScroll.getKey = function() {
