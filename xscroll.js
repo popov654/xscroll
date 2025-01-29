@@ -1405,9 +1405,13 @@ function debounce(func, timeout) {
    var last = 0
    var busy = false
    return function() {
+      if (timer) {
+         clearTimeout(timer)
+      }
+      timer = null
       if (Date.now() - last > timeout) {
-         if (busy) {
-            timer = setTimeout(arguments.callee, timeout)
+         if (busy && !timer) {
+            timer = setTimeout(arguments.callee, timeout, ...arguments)
             return
          }
          busy = true
@@ -1423,6 +1427,8 @@ function debounce(func, timeout) {
             }
             timer = null
          }
+      } else {
+         if (!timer) timer = setTimeout(arguments.callee, Math.max(0, timeout - (Date.now() - last)), ...arguments)
       }
    }
    var timer = null
