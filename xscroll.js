@@ -254,6 +254,7 @@ XScroll.private.updateYState = function(obj, enable) {
    } else {
       obj.children[0].style.right = '0px'
    }
+   obj.children[0].style.bottom = 'auto'
    obj.children[i+1].style.display = enable ? '' : 'none'
    obj.children[i+2].style.display = enable ? '' : 'none'
    obj.children[i+3].style.display = enable ? '' : 'none'
@@ -282,6 +283,7 @@ XScroll.updateThumbSize = function(obj, axis) {
    }
    var thumb = axis == 'x' ? getElementsByClass('xscroll_thumb_horz', obj, 'div')[0] : 
                              getElementsByClass('xscroll_thumb_vert', obj, 'div')[0]
+   if (!thumb) return
    if (axis == 'x') {
       thumb.style.width = thumb_size + 'px'
    } else {
@@ -861,7 +863,7 @@ XScroll.init = function(el, force) {
    
    var f_update_content = debounce(function(data) {
       var target = data ? data[0].target : this
-      XScroll.updateThumbPosition(target)
+      XScroll.updateThumbPosition(target.parentNode)
    }, 250);
    var update_enabled = true
    
